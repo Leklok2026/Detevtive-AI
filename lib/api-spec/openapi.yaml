@@ -1,22 +1,30 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Detective Game API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: cases
+    description: Cases and crimes
+  - name: suspects
+    description: Suspects management
+  - name: interrogation
+    description: AI interrogation
+  - name: player
+    description: Player management
+  - name: admin
+    description: Admin dashboard
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +32,386 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /cases:
+    get:
+      operationId: listCases
+      tags: [cases]
+      summary: List published cases
+      responses:
+        "200":
+          description: List of cases
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Case"
+
+  /cases/{id}:
+    get:
+      operationId: getCase
+      tags: [cases]
+      summary: Get case details with suspects
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Case with suspects
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaseDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /cases/{caseId}/suspects:
+    get:
+      operationId: listSuspects
+      tags: [suspects]
+      summary: List suspects for a case
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of suspects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Suspect"
+
+  /suspects/{id}:
+    get:
+      operationId: getSuspect
+      tags: [suspects]
+      summary: Get suspect details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Suspect
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Suspect"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /interrogate:
+    post:
+      operationId: interrogateSuspect
+      tags: [interrogation]
+      summary: Send message to suspect (AI responds in character)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InterrogationInput"
+      responses:
+        "200":
+          description: Suspect response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InterrogationResponse"
+
+  /guess:
+    post:
+      operationId: submitGuess
+      tags: [cases]
+      summary: Submit case solution guess
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GuessInput"
+      responses:
+        "200":
+          description: Guess result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GuessResult"
+
+  /player:
+    get:
+      operationId: getPlayer
+      tags: [player]
+      summary: Get current player info
+      parameters:
+        - name: sessionId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Player
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Player"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      operationId: createPlayer
+      tags: [player]
+      summary: Create or get player
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlayerInput"
+      responses:
+        "200":
+          description: Player
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Player"
+
+  /player/progress:
+    get:
+      operationId: getPlayerProgress
+      tags: [player]
+      summary: Get player progress across all cases
+      parameters:
+        - name: sessionId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Player progress
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PlayerProgress"
+
+  /purchase:
+    post:
+      operationId: purchaseCase
+      tags: [player]
+      summary: Purchase premium case access
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PurchaseInput"
+      responses:
+        "200":
+          description: Purchase result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PurchaseResult"
+
+  /settings:
+    get:
+      operationId: getSettings
+      tags: [admin]
+      summary: Get game settings
+      responses:
+        "200":
+          description: Settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameSettings"
+
+  /admin/cases:
+    get:
+      operationId: adminListCases
+      tags: [admin]
+      summary: Admin - list all cases (published and unpublished)
+      parameters:
+        - name: adminKey
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: All cases
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Case"
+    post:
+      operationId: adminCreateCase
+      tags: [admin]
+      summary: Admin - create new case
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CaseInput"
+      responses:
+        "201":
+          description: Created case
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Case"
+
+  /admin/cases/{id}:
+    patch:
+      operationId: adminUpdateCase
+      tags: [admin]
+      summary: Admin - update/publish case
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CaseUpdate"
+      responses:
+        "200":
+          description: Updated case
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Case"
+    delete:
+      operationId: adminDeleteCase
+      tags: [admin]
+      summary: Admin - delete case
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /admin/players:
+    get:
+      operationId: adminListPlayers
+      tags: [admin]
+      summary: Admin - list all players
+      parameters:
+        - name: adminKey
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: All players
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Player"
+
+  /admin/players/{id}:
+    patch:
+      operationId: adminUpdatePlayer
+      tags: [admin]
+      summary: Admin - update player (toggle payment)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlayerUpdate"
+      responses:
+        "200":
+          description: Updated player
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Player"
+
+  /admin/settings:
+    patch:
+      operationId: adminUpdateSettings
+      tags: [admin]
+      summary: Admin - update game settings (toggle payment system)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GameSettingsUpdate"
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameSettings"
+
+  /admin/stats:
+    get:
+      operationId: adminGetStats
+      tags: [admin]
+      summary: Admin - get dashboard stats
+      parameters:
+        - name: adminKey
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStats"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +422,401 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    Case:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        difficulty:
+          type: integer
+          description: "1=easy, 2=medium, 3=hard, 4=expert, 5=master"
+        isPublished:
+          type: boolean
+        isPremium:
+          type: boolean
+        coverImage:
+          type: ["string", "null"]
+        location:
+          type: string
+        crimeType:
+          type: string
+        reward:
+          type: integer
+          description: Points awarded for solving
+        createdAt:
+          type: string
+      required:
+        - id
+        - title
+        - description
+        - difficulty
+        - isPublished
+        - isPremium
+        - location
+        - crimeType
+        - reward
+        - createdAt
+
+    CaseDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        difficulty:
+          type: integer
+        isPublished:
+          type: boolean
+        isPremium:
+          type: boolean
+        coverImage:
+          type: ["string", "null"]
+        location:
+          type: string
+        crimeType:
+          type: string
+        reward:
+          type: integer
+        createdAt:
+          type: string
+        suspects:
+          type: array
+          items:
+            $ref: "#/components/schemas/Suspect"
+        evidenceList:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - title
+        - description
+        - difficulty
+        - isPublished
+        - isPremium
+        - location
+        - crimeType
+        - reward
+        - createdAt
+        - suspects
+        - evidenceList
+
+    CaseInput:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        difficulty:
+          type: integer
+        isPremium:
+          type: boolean
+        location:
+          type: string
+        crimeType:
+          type: string
+        reward:
+          type: integer
+        evidenceList:
+          type: array
+          items:
+            type: string
+        adminKey:
+          type: string
+      required:
+        - title
+        - description
+        - difficulty
+        - isPremium
+        - location
+        - crimeType
+        - reward
+        - adminKey
+
+    CaseUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        difficulty:
+          type: integer
+        isPremium:
+          type: boolean
+        isPublished:
+          type: boolean
+        location:
+          type: string
+        crimeType:
+          type: string
+        reward:
+          type: integer
+        evidenceList:
+          type: array
+          items:
+            type: string
+        adminKey:
+          type: string
+
+    Suspect:
+      type: object
+      properties:
+        id:
+          type: integer
+        caseId:
+          type: integer
+        name:
+          type: string
+        role:
+          type: string
+        backstory:
+          type: string
+        photoUrl:
+          type: ["string", "null"]
+        isGuilty:
+          type: boolean
+        deceptionLevel:
+          type: integer
+          description: "1-10, how evasive the suspect is"
+        personality:
+          type: string
+      required:
+        - id
+        - caseId
+        - name
+        - role
+        - backstory
+        - isGuilty
+        - deceptionLevel
+        - personality
+
+    InterrogationInput:
+      type: object
+      properties:
+        suspectId:
+          type: integer
+        caseId:
+          type: integer
+        sessionId:
+          type: string
+        message:
+          type: string
+        history:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChatMessage"
+      required:
+        - suspectId
+        - caseId
+        - sessionId
+        - message
+
+    ChatMessage:
+      type: object
+      properties:
+        role:
+          type: string
+        content:
+          type: string
+      required:
+        - role
+        - content
+
+    InterrogationResponse:
+      type: object
+      properties:
+        response:
+          type: string
+        suspectMood:
+          type: string
+          description: "calm, nervous, angry, defensive, crying"
+      required:
+        - response
+        - suspectMood
+
+    GuessInput:
+      type: object
+      properties:
+        caseId:
+          type: integer
+        sessionId:
+          type: string
+        suspectId:
+          type: integer
+      required:
+        - caseId
+        - sessionId
+        - suspectId
+
+    GuessResult:
+      type: object
+      properties:
+        correct:
+          type: boolean
+        message:
+          type: string
+        pointsEarned:
+          type: integer
+      required:
+        - correct
+        - message
+        - pointsEarned
+
+    Player:
+      type: object
+      properties:
+        id:
+          type: integer
+        sessionId:
+          type: string
+        name:
+          type: string
+        hasPaid:
+          type: boolean
+        points:
+          type: integer
+        paymentExempt:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - id
+        - sessionId
+        - name
+        - hasPaid
+        - points
+        - paymentExempt
+        - createdAt
+
+    PlayerInput:
+      type: object
+      properties:
+        sessionId:
+          type: string
+        name:
+          type: string
+      required:
+        - sessionId
+        - name
+
+    PlayerUpdate:
+      type: object
+      properties:
+        hasPaid:
+          type: boolean
+        paymentExempt:
+          type: boolean
+        adminKey:
+          type: string
+
+    PlayerProgress:
+      type: object
+      properties:
+        id:
+          type: integer
+        playerId:
+          type: integer
+        caseId:
+          type: integer
+        isSolved:
+          type: boolean
+        attempts:
+          type: integer
+        solvedAt:
+          type: ["string", "null"]
+      required:
+        - id
+        - playerId
+        - caseId
+        - isSolved
+        - attempts
+
+    PurchaseInput:
+      type: object
+      properties:
+        sessionId:
+          type: string
+        caseId:
+          type: integer
+      required:
+        - sessionId
+        - caseId
+
+    PurchaseResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required:
+        - success
+        - message
+
+    GameSettings:
+      type: object
+      properties:
+        id:
+          type: integer
+        paymentEnabled:
+          type: boolean
+        paymentAmount:
+          type: integer
+          description: Amount in cents
+        freeTrialCases:
+          type: integer
+          description: Number of free cases before payment required
+      required:
+        - id
+        - paymentEnabled
+        - paymentAmount
+        - freeTrialCases
+
+    GameSettingsUpdate:
+      type: object
+      properties:
+        paymentEnabled:
+          type: boolean
+        paymentAmount:
+          type: integer
+        freeTrialCases:
+          type: integer
+        adminKey:
+          type: string
+
+    AdminStats:
+      type: object
+      properties:
+        totalPlayers:
+          type: integer
+        totalCases:
+          type: integer
+        publishedCases:
+          type: integer
+        totalSolvedCases:
+          type: integer
+        paidPlayers:
+          type: integer
+      required:
+        - totalPlayers
+        - totalCases
+        - publishedCases
+        - totalSolvedCases
+        - paidPlayers
