@@ -1,0 +1,62 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "JFE2E4HZBMgjFY6JOZ_k5"
+uri = "file://artifacts/detective-game/public/suspects/layla-mansour.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "AidA-CB408lHOIQiNEKFg"
+uri = "file://artifacts/detective-game/public/suspects/nader-amin.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "jqclh49X2N8q-Fa8TqttB"
+uri = "file://artifacts/detective-game/public/suspects/rami-shadli.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "b5DlY95nydA1WhPIBN2Lu"
+uri = "file://artifacts/detective-game/public/suspects/sara-haddad.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "gC0XhyL8zYhCa-maAl5gX"
+uri = "file://artifacts/detective-game/public/suspects/tarek-fawzi.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "ZnsKSu8uPGK7qtczFRKbx"
+uri = "file://artifacts/detective-game/public/suspects/hanaa-abdelkarim.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "XzBtJY4ydBxP-6yBBsTwO"
+uri = "file://artifacts/detective-game/public/suspects/mohamed-sayed.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "NTm7uLcjQU9TIw1WZnI0h"
+uri = "file://artifacts/detective-game/public/suspects/nagwa-farouk.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "X3rK7mzFNu93QfLtLxAlH"
+uri = "file://artifacts/detective-game/public/suspects/yousef-rashidi.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "EvbF69YhvBoDTkKHlrBFc"
+uri = "file://artifacts/detective-game/public/suspects/hamdi-qurashi.png"
+type = "image"
+title = "generated_image"
