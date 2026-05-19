@@ -30,6 +30,10 @@ export const ListCasesResponseItem = zod.object({
   "location": zod.string(),
   "crimeType": zod.string(),
   "reward": zod.number().describe('Points awarded for solving'),
+  "isSeasonal": zod.boolean(),
+  "seasonName": zod.string().nullish().describe('e.g. عيد الأضحى, الصيف, رمضان'),
+  "seasonColor": zod.string().nullish().describe('CSS gradient or hex color for the season badge'),
+  "seasonEndDate": zod.string().nullish().describe('ISO date string when the seasonal case expires'),
   "createdAt": zod.string()
 })
 export const ListCasesResponse = zod.array(ListCasesResponseItem)
@@ -53,6 +57,10 @@ export const GetCaseResponse = zod.object({
   "location": zod.string(),
   "crimeType": zod.string(),
   "reward": zod.number(),
+  "isSeasonal": zod.boolean(),
+  "seasonName": zod.string().nullish(),
+  "seasonColor": zod.string().nullish(),
+  "seasonEndDate": zod.string().nullish(),
   "createdAt": zod.string(),
   "suspects": zod.array(zod.object({
   "id": zod.number(),
@@ -244,6 +252,10 @@ export const AdminListCasesResponseItem = zod.object({
   "location": zod.string(),
   "crimeType": zod.string(),
   "reward": zod.number().describe('Points awarded for solving'),
+  "isSeasonal": zod.boolean(),
+  "seasonName": zod.string().nullish().describe('e.g. عيد الأضحى, الصيف, رمضان'),
+  "seasonColor": zod.string().nullish().describe('CSS gradient or hex color for the season badge'),
+  "seasonEndDate": zod.string().nullish().describe('ISO date string when the seasonal case expires'),
   "createdAt": zod.string()
 })
 export const AdminListCasesResponse = zod.array(AdminListCasesResponseItem)
@@ -261,6 +273,10 @@ export const AdminCreateCaseBody = zod.object({
   "crimeType": zod.string(),
   "reward": zod.number(),
   "evidenceList": zod.array(zod.string()).optional(),
+  "isSeasonal": zod.boolean().optional(),
+  "seasonName": zod.string().optional(),
+  "seasonColor": zod.string().optional(),
+  "seasonEndDate": zod.string().optional().describe('ISO date string'),
   "adminKey": zod.string()
 })
 
@@ -282,6 +298,10 @@ export const AdminUpdateCaseBody = zod.object({
   "crimeType": zod.string().optional(),
   "reward": zod.number().optional(),
   "evidenceList": zod.array(zod.string()).optional(),
+  "isSeasonal": zod.boolean().optional(),
+  "seasonName": zod.string().optional(),
+  "seasonColor": zod.string().optional(),
+  "seasonEndDate": zod.string().optional(),
   "adminKey": zod.string().optional()
 })
 
@@ -296,6 +316,10 @@ export const AdminUpdateCaseResponse = zod.object({
   "location": zod.string(),
   "crimeType": zod.string(),
   "reward": zod.number().describe('Points awarded for solving'),
+  "isSeasonal": zod.boolean(),
+  "seasonName": zod.string().nullish().describe('e.g. عيد الأضحى, الصيف, رمضان'),
+  "seasonColor": zod.string().nullish().describe('CSS gradient or hex color for the season badge'),
+  "seasonEndDate": zod.string().nullish().describe('ISO date string when the seasonal case expires'),
   "createdAt": zod.string()
 })
 

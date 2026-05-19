@@ -27,6 +27,22 @@ export interface Case {
   crimeType: string;
   /** Points awarded for solving */
   reward: number;
+  isSeasonal: boolean;
+  /**
+     * e.g. عيد الأضحى, الصيف, رمضان
+     * @nullable
+     */
+  seasonName?: string | null;
+  /**
+     * CSS gradient or hex color for the season badge
+     * @nullable
+     */
+  seasonColor?: string | null;
+  /**
+     * ISO date string when the seasonal case expires
+     * @nullable
+     */
+  seasonEndDate?: string | null;
   createdAt: string;
 }
 
@@ -56,6 +72,13 @@ export interface CaseDetail {
   location: string;
   crimeType: string;
   reward: number;
+  isSeasonal: boolean;
+  /** @nullable */
+  seasonName?: string | null;
+  /** @nullable */
+  seasonColor?: string | null;
+  /** @nullable */
+  seasonEndDate?: string | null;
   createdAt: string;
   suspects: Suspect[];
   evidenceList: string[];
@@ -70,6 +93,11 @@ export interface CaseInput {
   crimeType: string;
   reward: number;
   evidenceList?: string[];
+  isSeasonal?: boolean;
+  seasonName?: string;
+  seasonColor?: string;
+  /** ISO date string */
+  seasonEndDate?: string;
   adminKey: string;
 }
 
@@ -83,6 +111,10 @@ export interface CaseUpdate {
   crimeType?: string;
   reward?: number;
   evidenceList?: string[];
+  isSeasonal?: boolean;
+  seasonName?: string;
+  seasonColor?: string;
+  seasonEndDate?: string;
   adminKey?: string;
 }
 

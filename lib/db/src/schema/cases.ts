@@ -14,6 +14,10 @@ export const casesTable = pgTable("cases", {
   crimeType: text("crime_type").notNull(),
   reward: integer("reward").notNull().default(100),
   evidenceList: text("evidence_list").array().notNull().default([]),
+  isSeasonal: boolean("is_seasonal").notNull().default(false),
+  seasonName: text("season_name"),
+  seasonColor: text("season_color"),
+  seasonEndDate: timestamp("season_end_date", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });

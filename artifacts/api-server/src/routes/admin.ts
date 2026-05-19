@@ -24,6 +24,26 @@ function checkAdminKey(key: string | undefined, res: any): boolean {
   return true;
 }
 
+function formatCase(c: typeof casesTable.$inferSelect) {
+  return {
+    id: c.id,
+    title: c.title,
+    description: c.description,
+    difficulty: c.difficulty,
+    isPublished: c.isPublished,
+    isPremium: c.isPremium,
+    coverImage: c.coverImage,
+    location: c.location,
+    crimeType: c.crimeType,
+    reward: c.reward,
+    isSeasonal: c.isSeasonal,
+    seasonName: c.seasonName ?? null,
+    seasonColor: c.seasonColor ?? null,
+    seasonEndDate: c.seasonEndDate ? c.seasonEndDate.toISOString() : null,
+    createdAt: c.createdAt.toISOString(),
+  };
+}
+
 const router: IRouter = Router();
 
 router.get("/admin/cases", async (req, res): Promise<void> => {
@@ -35,22 +55,7 @@ router.get("/admin/cases", async (req, res): Promise<void> => {
   if (!checkAdminKey(parsed.data.adminKey, res)) return;
 
   const cases = await db.select().from(casesTable).orderBy(casesTable.createdAt);
-
-  res.json(
-    cases.map((c) => ({
-      id: c.id,
-      title: c.title,
-      description: c.description,
-      difficulty: c.difficulty,
-      isPublished: c.isPublished,
-      isPremium: c.isPremium,
-      coverImage: c.coverImage,
-      location: c.location,
-      crimeType: c.crimeType,
-      reward: c.reward,
-      createdAt: c.createdAt.toISOString(),
-    }))
-  );
+  res.json(cases.map(formatCase));
 });
 
 router.post("/admin/cases", async (req, res): Promise<void> => {
@@ -73,22 +78,14 @@ router.post("/admin/cases", async (req, res): Promise<void> => {
       crimeType: parsed.data.crimeType,
       reward: parsed.data.reward,
       evidenceList: parsed.data.evidenceList ?? [],
+      isSeasonal: parsed.data.isSeasonal ?? false,
+      seasonName: parsed.data.seasonName ?? null,
+      seasonColor: parsed.data.seasonColor ?? null,
+      seasonEndDate: parsed.data.seasonEndDate ? new Date(parsed.data.seasonEndDate) : null,
     })
     .returning();
 
-  res.status(201).json({
-    id: caseRow.id,
-    title: caseRow.title,
-    description: caseRow.description,
-    difficulty: caseRow.difficulty,
-    isPublished: caseRow.isPublished,
-    isPremium: caseRow.isPremium,
-    coverImage: caseRow.coverImage,
-    location: caseRow.location,
-    crimeType: caseRow.crimeType,
-    reward: caseRow.reward,
-    createdAt: caseRow.createdAt.toISOString(),
-  });
+  res.status(201).json(formatCase(caseRow));
 });
 
 router.patch("/admin/cases/:id", async (req, res): Promise<void> => {
@@ -116,6 +113,12 @@ router.patch("/admin/cases/:id", async (req, res): Promise<void> => {
   if (parsed.data.crimeType !== undefined) updates.crimeType = parsed.data.crimeType;
   if (parsed.data.reward !== undefined) updates.reward = parsed.data.reward;
   if (parsed.data.evidenceList !== undefined) updates.evidenceList = parsed.data.evidenceList;
+  if (parsed.data.isSeasonal !== undefined) updates.isSeasonal = parsed.data.isSeasonal;
+  if (parsed.data.seasonName !== undefined) updates.seasonName = parsed.data.seasonName;
+  if (parsed.data.seasonColor !== undefined) updates.seasonColor = parsed.data.seasonColor;
+  if (parsed.data.seasonEndDate !== undefined) {
+    updates.seasonEndDate = parsed.data.seasonEndDate ? new Date(parsed.data.seasonEndDate) : null;
+  }
 
   const [caseRow] = await db
     .update(casesTable)
@@ -128,19 +131,7 @@ router.patch("/admin/cases/:id", async (req, res): Promise<void> => {
     return;
   }
 
-  res.json({
-    id: caseRow.id,
-    title: caseRow.title,
-    description: caseRow.description,
-    difficulty: caseRow.difficulty,
-    isPublished: caseRow.isPublished,
-    isPremium: caseRow.isPremium,
-    coverImage: caseRow.coverImage,
-    location: caseRow.location,
-    crimeType: caseRow.crimeType,
-    reward: caseRow.reward,
-    createdAt: caseRow.createdAt.toISOString(),
-  });
+  res.json(formatCase(caseRow));
 });
 
 router.delete("/admin/cases/:id", async (req, res): Promise<void> => {

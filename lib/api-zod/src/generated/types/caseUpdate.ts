@@ -16,5 +16,9 @@ export interface CaseUpdate {
   crimeType?: string;
   reward?: number;
   evidenceList?: string[];
+  isSeasonal?: boolean;
+  seasonName?: string;
+  seasonColor?: string;
+  seasonEndDate?: string;
   adminKey?: string;
 }

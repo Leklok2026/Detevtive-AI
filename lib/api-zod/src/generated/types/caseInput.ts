@@ -15,5 +15,10 @@ export interface CaseInput {
   crimeType: string;
   reward: number;
   evidenceList?: string[];
+  isSeasonal?: boolean;
+  seasonName?: string;
+  seasonColor?: string;
+  /** ISO date string */
+  seasonEndDate?: string;
   adminKey: string;
 }

@@ -19,6 +19,13 @@ export interface CaseDetail {
   location: string;
   crimeType: string;
   reward: number;
+  isSeasonal: boolean;
+  /** @nullable */
+  seasonName?: string | null;
+  /** @nullable */
+  seasonColor?: string | null;
+  /** @nullable */
+  seasonEndDate?: string | null;
   createdAt: string;
   suspects: Suspect[];
   evidenceList: string[];

@@ -455,6 +455,17 @@ components:
         reward:
           type: integer
           description: Points awarded for solving
+        isSeasonal:
+          type: boolean
+        seasonName:
+          type: ["string", "null"]
+          description: "e.g. عيد الأضحى, الصيف, رمضان"
+        seasonColor:
+          type: ["string", "null"]
+          description: "CSS gradient or hex color for the season badge"
+        seasonEndDate:
+          type: ["string", "null"]
+          description: "ISO date string when the seasonal case expires"
         createdAt:
           type: string
       required:
@@ -467,6 +478,7 @@ components:
         - location
         - crimeType
         - reward
+        - isSeasonal
         - createdAt
 
     CaseDetail:
@@ -492,6 +504,14 @@ components:
           type: string
         reward:
           type: integer
+        isSeasonal:
+          type: boolean
+        seasonName:
+          type: ["string", "null"]
+        seasonColor:
+          type: ["string", "null"]
+        seasonEndDate:
+          type: ["string", "null"]
         createdAt:
           type: string
         suspects:
@@ -512,6 +532,7 @@ components:
         - location
         - crimeType
         - reward
+        - isSeasonal
         - createdAt
         - suspects
         - evidenceList
@@ -537,6 +558,15 @@ components:
           type: array
           items:
             type: string
+        isSeasonal:
+          type: boolean
+        seasonName:
+          type: string
+        seasonColor:
+          type: string
+        seasonEndDate:
+          type: string
+          description: "ISO date string"
         adminKey:
           type: string
       required:
@@ -572,6 +602,14 @@ components:
           type: array
           items:
             type: string
+        isSeasonal:
+          type: boolean
+        seasonName:
+          type: string
+        seasonColor:
+          type: string
+        seasonEndDate:
+          type: string
         adminKey:
           type: string
 

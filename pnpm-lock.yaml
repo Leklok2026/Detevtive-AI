@@ -637,7 +637,11 @@ importers:
         specifier: ^0.31.10
         version: 0.31.10
 
-  lib/integrations-openai-ai-react: {}
+  lib/integrations-openai-ai-react:
+    devDependencies:
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.14
 
   lib/integrations-openai-ai-server:
     dependencies:
@@ -656,6 +660,13 @@ importers:
         version: 25.6.2
 
   scripts:
+    dependencies:
+      '@workspace/db':
+        specifier: workspace:*
+        version: link:../lib/db
+      drizzle-orm:
+        specifier: 'catalog:'
+        version: 0.45.2(@types/pg@8.20.0)(pg@8.20.0)
     devDependencies:
       '@types/node':
         specifier: 'catalog:'

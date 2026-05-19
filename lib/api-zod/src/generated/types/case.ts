@@ -20,5 +20,21 @@ export interface Case {
   crimeType: string;
   /** Points awarded for solving */
   reward: number;
+  isSeasonal: boolean;
+  /**
+     * e.g. عيد الأضحى, الصيف, رمضان
+     * @nullable
+     */
+  seasonName?: string | null;
+  /**
+     * CSS gradient or hex color for the season badge
+     * @nullable
+     */
+  seasonColor?: string | null;
+  /**
+     * ISO date string when the seasonal case expires
+     * @nullable
+     */
+  seasonEndDate?: string | null;
   createdAt: string;
 }

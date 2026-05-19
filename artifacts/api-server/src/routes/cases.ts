@@ -9,6 +9,26 @@ import {
 
 const router: IRouter = Router();
 
+function formatCase(c: typeof casesTable.$inferSelect) {
+  return {
+    id: c.id,
+    title: c.title,
+    description: c.description,
+    difficulty: c.difficulty,
+    isPublished: c.isPublished,
+    isPremium: c.isPremium,
+    coverImage: c.coverImage,
+    location: c.location,
+    crimeType: c.crimeType,
+    reward: c.reward,
+    isSeasonal: c.isSeasonal,
+    seasonName: c.seasonName ?? null,
+    seasonColor: c.seasonColor ?? null,
+    seasonEndDate: c.seasonEndDate ? c.seasonEndDate.toISOString() : null,
+    createdAt: c.createdAt.toISOString(),
+  };
+}
+
 router.get("/cases", async (req, res): Promise<void> => {
   const cases = await db
     .select()
@@ -16,21 +36,7 @@ router.get("/cases", async (req, res): Promise<void> => {
     .where(eq(casesTable.isPublished, true))
     .orderBy(casesTable.difficulty);
 
-  res.json(
-    cases.map((c) => ({
-      id: c.id,
-      title: c.title,
-      description: c.description,
-      difficulty: c.difficulty,
-      isPublished: c.isPublished,
-      isPremium: c.isPremium,
-      coverImage: c.coverImage,
-      location: c.location,
-      crimeType: c.crimeType,
-      reward: c.reward,
-      createdAt: c.createdAt.toISOString(),
-    }))
-  );
+  res.json(cases.map(formatCase));
 });
 
 router.get("/cases/:id", async (req, res): Promise<void> => {
@@ -57,17 +63,7 @@ router.get("/cases/:id", async (req, res): Promise<void> => {
     .where(eq(suspectsTable.caseId, params.data.id));
 
   res.json({
-    id: caseRow.id,
-    title: caseRow.title,
-    description: caseRow.description,
-    difficulty: caseRow.difficulty,
-    isPublished: caseRow.isPublished,
-    isPremium: caseRow.isPremium,
-    coverImage: caseRow.coverImage,
-    location: caseRow.location,
-    crimeType: caseRow.crimeType,
-    reward: caseRow.reward,
-    createdAt: caseRow.createdAt.toISOString(),
+    ...formatCase(caseRow),
     evidenceList: caseRow.evidenceList,
     suspects: suspects.map((s) => ({
       id: s.id,
