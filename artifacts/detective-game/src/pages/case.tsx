@@ -3,6 +3,7 @@ import { useLocation, useParams, Link } from "wouter";
 import { ArrowRight, FileText, User, ChevronRight, Star } from "lucide-react";
 import { useGetCase, getGetCaseQueryKey } from "@workspace/api-client-react";
 import { getSessionId } from "@/lib/session";
+import AdBanner from "@/components/ad-banner";
 
 function StarRating({ count }: { count: number }) {
   return (
@@ -127,6 +128,11 @@ export default function CasePage() {
             <ChevronRight className="w-4 h-4" />
           </Link>
         </div>
+      </div>
+
+      {/* Ad between evidence and suspects */}
+      <div className="flex justify-center my-6">
+        <AdBanner slot="sidebar" />
       </div>
 
       {/* Suspects Grid */}

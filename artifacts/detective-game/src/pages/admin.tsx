@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Shield, Users, BarChart3, Settings, Eye, EyeOff, Trash2, ToggleLeft, ToggleRight, Lock, Sparkles, Plus, X, Calendar } from "lucide-react";
+import { Shield, Users, BarChart3, Settings, Eye, EyeOff, Trash2, ToggleLeft, ToggleRight, Lock, Sparkles, Plus, X, Calendar, Megaphone, DollarSign } from "lucide-react";
 import {
   useAdminGetStats,
   useAdminListCases,
@@ -18,10 +18,11 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { getAdminKey, setAdminKey } from "@/lib/session";
 import SeasonCountdown from "@/components/season-countdown";
+import { getAdSettings, setAdSettings, type AdSlot } from "@/components/ad-banner";
 
 const ADMIN_KEY_CORRECT = "detective123";
 
-type Tab = "stats" | "cases" | "players" | "settings";
+type Tab = "stats" | "cases" | "players" | "settings" | "ads";
 
 const SEASON_PRESETS = [
   { name: "عيد الأضحى", color: "#10b981", emoji: "🐑" },
@@ -305,6 +306,13 @@ function CasesPanel({ adminKey }: { adminKey: string }) {
     );
   };
 
+  const togglePremium = (id: number, current: boolean) => {
+    updateCase.mutate(
+      { id, data: { isPremium: !current, adminKey } },
+      { onSuccess: () => queryClient.invalidateQueries({ queryKey: getAdminListCasesQueryKey({ adminKey }) }) }
+    );
+  };
+
   const handleDelete = (id: number) => {
     if (!confirm("هل أنت متأكد من حذف هذه القضية؟")) return;
     deleteCase.mutate(
@@ -356,6 +364,7 @@ function CasesPanel({ adminKey }: { adminKey: string }) {
               <th className="text-center py-3">الصعوبة</th>
               <th className="text-center py-3">النوع</th>
               <th className="text-center py-3">الموسم</th>
+              <th className="text-center py-3">مدفوعة</th>
               <th className="text-center py-3">النشر</th>
               <th className="text-center py-3">حذف</th>
             </tr>
@@ -408,6 +417,20 @@ function CasesPanel({ adminKey }: { adminKey: string }) {
                     ) : (
                       <span className="text-muted-foreground text-xs">—</span>
                     )}
+                  </td>
+                  <td className="py-3 text-center">
+                    <button
+                      data-testid={`button-toggle-premium-${c.id}`}
+                      onClick={() => togglePremium(c.id, c.isPremium)}
+                      className={`flex items-center gap-1.5 mx-auto text-xs px-3 py-1 rounded-full border transition-all ${
+                        c.isPremium
+                          ? "border-primary/40 bg-primary/10 text-primary"
+                          : "border-muted text-muted-foreground hover:border-emerald-500/40 hover:text-emerald-400"
+                      }`}
+                    >
+                      {c.isPremium ? <Lock className="w-3 h-3" /> : <DollarSign className="w-3 h-3" />}
+                      {c.isPremium ? "مدفوعة" : "مجانية"}
+                    </button>
                   </td>
                   <td className="py-3 text-center">
                     <button
@@ -484,6 +507,142 @@ function PlayersPanel({ adminKey }: { adminKey: string }) {
         </tbody>
       </table>
       {(!players || players.length === 0) && <div className="text-center py-8 text-muted-foreground text-sm">لا يوجد لاعبون بعد</div>}
+    </div>
+  );
+}
+
+const AD_SLOT_INFO: Record<AdSlot, { label: string; desc: string; size: string; emoji: string }> = {
+  header:  { label: "بانر الرأس",    desc: "أعلى الصفحة الرئيسية",        size: "728×90",   emoji: "📢" },
+  content: { label: "بانر المحتوى",  desc: "داخل صفحات القضايا",          size: "336×280",  emoji: "📰" },
+  sidebar: { label: "بانر جانبي",    desc: "في صفحة التفاصيل",            size: "300×250",  emoji: "📌" },
+};
+
+function AdsPanel() {
+  const [settings, setLocalSettings] = useState(() => getAdSettings());
+  const [saved, setSaved] = useState(false);
+
+  const save = () => {
+    setAdSettings(settings);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
+  const toggleEnabled = () => {
+    const next = { ...settings, enabled: !settings.enabled };
+    setLocalSettings(next);
+    setAdSettings(next);
+  };
+
+  const updateSlot = (slot: AdSlot, code: string) => {
+    setLocalSettings((s) => ({ ...s, slots: { ...s.slots, [slot]: code } }));
+  };
+
+  const totalFilledSlots = Object.values(settings.slots).filter(Boolean).length;
+
+  return (
+    <div className="space-y-6">
+      {/* Header stats */}
+      <div className="grid grid-cols-3 gap-4">
+        <div className="bg-background/60 border border-border rounded-xl p-4 text-center">
+          <div className={`font-cinzel text-2xl font-black mb-1 ${settings.enabled ? "text-emerald-400" : "text-muted-foreground"}`}>
+            {settings.enabled ? "مفعّل" : "معطّل"}
+          </div>
+          <div className="text-xs text-muted-foreground">حالة الإعلانات</div>
+        </div>
+        <div className="bg-background/60 border border-border rounded-xl p-4 text-center">
+          <div className="font-cinzel text-2xl font-black text-primary mb-1">{totalFilledSlots}/3</div>
+          <div className="text-xs text-muted-foreground">مواضع مُهيأة</div>
+        </div>
+        <div className="bg-background/60 border border-border rounded-xl p-4 text-center">
+          <div className="font-cinzel text-2xl font-black text-amber-400 mb-1">3</div>
+          <div className="text-xs text-muted-foreground">مواضع متاحة</div>
+        </div>
+      </div>
+
+      {/* Global toggle */}
+      <div className="bg-background/60 border border-border rounded-xl p-5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-amber-400/10 border border-amber-400/20 flex items-center justify-center">
+              <Megaphone className="w-4 h-4 text-amber-400" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-foreground text-sm">تفعيل الإعلانات</h3>
+              <p className="text-muted-foreground text-xs">إظهار الإعلانات لجميع اللاعبين</p>
+            </div>
+          </div>
+          <button
+            data-testid="button-toggle-ads"
+            onClick={toggleEnabled}
+            className={`relative w-12 h-6 rounded-full transition-colors ${settings.enabled ? "bg-amber-400" : "bg-muted"}`}
+          >
+            <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform shadow ${settings.enabled ? "translate-x-7" : "translate-x-1"}`} />
+          </button>
+        </div>
+        {settings.enabled && (
+          <div className="mt-3 pt-3 border-t border-border/50 flex items-center gap-2 text-xs text-amber-400">
+            <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+            الإعلانات تظهر للاعبين الآن
+          </div>
+        )}
+      </div>
+
+      {/* Ad slots */}
+      <div className="space-y-4">
+        <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+          <DollarSign className="w-4 h-4 text-amber-400" />
+          مواضع الإعلانات
+        </h3>
+        {(Object.keys(AD_SLOT_INFO) as AdSlot[]).map((slot) => {
+          const info = AD_SLOT_INFO[slot];
+          const hasCode = !!settings.slots[slot];
+          return (
+            <div key={slot} className={`border rounded-xl p-4 transition-colors ${hasCode ? "border-amber-400/30 bg-amber-400/5" : "border-border bg-background/40"}`}>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">{info.emoji}</span>
+                  <div>
+                    <div className="text-sm font-medium text-foreground">{info.label}</div>
+                    <div className="text-xs text-muted-foreground">{info.desc} — {info.size} px</div>
+                  </div>
+                </div>
+                {hasCode && (
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-amber-400/15 border border-amber-400/30 text-amber-400">مُهيأ</span>
+                )}
+              </div>
+              <textarea
+                value={settings.slots[slot] ?? ""}
+                onChange={(e) => updateSlot(slot, e.target.value)}
+                rows={3}
+                placeholder={`أدخل كود HTML/JavaScript للإعلان هنا (Google AdSense، أو أي شبكة إعلانية...)`}
+                className="w-full px-3 py-2 rounded-lg bg-background border border-border focus:border-amber-400/40 focus:ring-1 focus:ring-amber-400/20 outline-none text-xs text-foreground font-mono resize-none transition-all"
+                dir="ltr"
+              />
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Instructions */}
+      <div className="bg-background/40 border border-border/60 rounded-xl p-4">
+        <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+          <span>💡</span> كيفية الاستخدام مع Google AdSense
+        </h4>
+        <ol className="space-y-1.5 text-xs text-muted-foreground" dir="rtl">
+          <li className="flex gap-2"><span className="text-primary font-bold">1.</span> سجّل في Google AdSense وأنشئ وحدة إعلانية</li>
+          <li className="flex gap-2"><span className="text-primary font-bold">2.</span> انسخ كود الإعلان من لوحة AdSense</li>
+          <li className="flex gap-2"><span className="text-primary font-bold">3.</span> الصق الكود في الموضع المناسب أعلاه</li>
+          <li className="flex gap-2"><span className="text-primary font-bold">4.</span> فعّل الإعلانات واضغط "حفظ"</li>
+          <li className="flex gap-2"><span className="text-primary font-bold">5.</span> يمكن استخدام أي شبكة إعلانية تدعم HTML/JS</li>
+        </ol>
+      </div>
+
+      <button
+        onClick={save}
+        className={`w-full py-3 rounded-xl font-semibold text-sm transition-all ${saved ? "bg-emerald-500 text-white" : "bg-amber-400 text-background hover:bg-amber-400/90"}`}
+      >
+        {saved ? "✓ تم الحفظ" : "حفظ إعدادات الإعلانات"}
+      </button>
     </div>
   );
 }
@@ -565,6 +724,7 @@ export default function AdminPage() {
     { id: "cases", label: "القضايا", icon: <Shield className="w-4 h-4" /> },
     { id: "players", label: "اللاعبون", icon: <Users className="w-4 h-4" /> },
     { id: "settings", label: "الإعدادات", icon: <Settings className="w-4 h-4" /> },
+    { id: "ads", label: "الإعلانات", icon: <Megaphone className="w-4 h-4" /> },
   ];
 
   return (
@@ -598,6 +758,7 @@ export default function AdminPage() {
         {tab === "cases" && <CasesPanel adminKey={adminKey} />}
         {tab === "players" && <PlayersPanel adminKey={adminKey} />}
         {tab === "settings" && <SettingsPanel adminKey={adminKey} />}
+        {tab === "ads" && <AdsPanel />}
       </div>
     </div>
   );

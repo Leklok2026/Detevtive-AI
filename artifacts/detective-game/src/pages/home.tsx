@@ -5,6 +5,7 @@ import { useListCases, useGetPlayer, useGetPlayerProgress, getGetPlayerQueryKey,
 import type { Case } from "@workspace/api-client-react";
 import { getSessionId } from "@/lib/session";
 import SeasonCountdown from "@/components/season-countdown";
+import AdBanner from "@/components/ad-banner";
 
 const DIFFICULTY_LABELS: Record<number, string> = {
   1: "سهل",
@@ -238,6 +239,9 @@ export default function Home() {
         </div>
       ) : (
         <>
+          {/* Header Ad */}
+          <AdBanner slot="header" className="mb-8" />
+
           {/* Seasonal Cases Section */}
           {seasonalCases.length > 0 && (
             <section className="mb-10">
@@ -250,6 +254,13 @@ export default function Home() {
                 {seasonalCases.map(renderCaseCard)}
               </div>
             </section>
+          )}
+
+          {/* Content Ad between sections */}
+          {seasonalCases.length > 0 && regularCases.length > 0 && (
+            <div className="flex justify-center mb-8">
+              <AdBanner slot="content" />
+            </div>
           )}
 
           {/* Regular Cases Section */}
